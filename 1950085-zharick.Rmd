@@ -1,0 +1,167 @@
+---
+title: "EXAMEN FINAL DISEÑO DE EXPERIMENTOS"
+Nombre: "zharick saldaña"
+codigo: "1950085"
+output: github_document
+---
+
+```{r}
+library(readxl)
+datos<- read_excel("C:/Users/lorena/Desktop/examen final D.E/base de datos zharick.xlsx")
+```
+
+## TIPIFICACION O ESTANDARIZACION DE VARIABLES 
+
+```{r}
+datost<- datos
+
+datos<- scale(datost, center = T, scale = T)
+datost<- as.data.frame(datost)
+
+```
+
+## NORMALIDAD MULTIVARIANTE
+
+H0: Normalidad multivariante 
+H1: No normalidad multivariante 
+Confianza= 95%
+Alfa= 5% = 0,05
+P value > alfa: no se rechaza la H0 (Normalidad) 
+P value < alfa: se rechaza la H0 (No normalidad)
+
+```{r}
+library(MVN)
+mvn(datost[2:7])
+
+```
+
+## MATRIZ DE CORRELACIONES 
+
+```{r}
+library(psych)
+corr.test(datost[,2:7])
+correlaciones<- corr.test(datost[,2:7])
+correlaciones$r
+r<- as.matrix(correlaciones$r)
+
+```
+
+## INDICADORES DE APLICABILIDAD DE AFE (BONDAD DEL AJUSTE)
+## CONTRASTE DE ESFERIDAD DE BARTLETT
+H0: las correlaciones teoricas entre cada par de variable es nulo
+H1: las correlaciones teoricas entre cada par de variable no es nulo
+alfa= 0,05
+
+p value > alfa: no se aplica el AFE( No se rechaza H0)
+p value < alfa: si se aplica el AFE(se rechaza H0)
+
+
+```{r}
+dim(datost)
+
+cortest.bartlett(r, n= 30)
+
+```
+
+## MEDIDAS DE ADECUACION MUESTRAL DE KAYSER, MEYER Y OKLIN (KMO)
+
+```{r}
+KMO(r)
+
+```
+
+##METODOS DE EXTRACCION DE FACTORES 
+##METODO DE LOS ANALISIS DE LOS COMPONENTES (ACP)
+
+```{r}
+library(psych)
+acp<- principal(r, nfactors = 1, rotate = "nome")
+acp
+
+```
+
+## METODOS DE LOS EJES PRINCIPALES (CPI)
+
+```{r}
+cpi<- fa(r, nfactors = 2, fm= "pa", rotate = "none", n.obs = 30)
+```
+
+## METODO DE MAXIMA VEROSIMILITUD (MVE)
+
+```{r}
+mve<- fa(r, nfactors = 1, fm= "ml", rotate = "none", n.obs = 30)
+mve
+
+```
+
+## REPRESENTACION GRAFICA DE LOS FACTORES EXTRAIDOS
+## ACP
+## CPI
+## MVE
+
+# Solo se grafica cuando hay 2 factores a extraer, por lo cual no se puede hacer ya que solo se extrajo 1
+
+```
+plot(acp,labels =row.names(r),cex=.7 , ylim=c(-.8,.8))
+
+
+```
+
+```{r}
+plot(cpi,labels=row.names(r), cex=.7, ylim=c(-.8, .8))
+
+```
+
+```
+plot(mve,labels = row.names(r), cex=1, ylim=c(-.8, .8))
+
+```
+
+# OBTENCION DE LAS PUNTUACIONES FACTORIALES
+## METODOS DE LOS ANALISIS DE LOS COMPONENTES PRINCIPALES ITERADAS (ACP)
+
+```{r}
+acp1 <-principal(datost[,2:7], nfactors = 1 , rotate = "none", scores = T)
+acp1$scores
+puntuacionesfactoriales_acp<- acp1$scores
+puntuacionesfactoriales_acp<- as.data.frame(puntuacionesfactoriales_acp)
+
+```
+
+## METODO DE LAS COMPONENTES INTEGRADAS (CPI)  
+
+```{r}
+cpi1<- fa(datost[,2:7], nfactors = 1, fm= "pa", rotate = "none", n.obs = 30,scores = "regression")
+cpi1$scores
+puntfact_cp1<-cpi1$scores
+puntfact_cp1<-as.data.frame(puntfact_cp1)
+
+```
+
+## METODO DE LA MAXIMA VIROSIMILITUD  
+
+```{r}
+mve1<- fa(datost[,2:7], nfactors = 1, fm= "ml", rotate = "none", n.obs = 30, scores = "regression")
+mve1$scores
+puntfact_mve1<-mve1$scores
+puntfact_mve1<-as.data.frame(puntfact_mve1)
+
+```
+
+# OBTENCION DE LOS DATOS EXTRAIDOS  
+
+```{r}
+factor.scores(r, acp, method = "thurstone")
+```
+
+# AGREGAR EL FACTOR EXTRAIDO (PUNTUACIONES FACTORIALES) A UN DATA FRAME
+
+```{r}
+datos_puntuaciones<- c(datos, puntuacionesfactoriales_acp)
+datos_puntuaciones<- c(datos, puntuacionesfactoriales_acp)
+```
+
+
+
+
+
